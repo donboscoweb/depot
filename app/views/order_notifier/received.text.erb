@@ -1,0 +1,9 @@
+Gentile <%= @order.name %>
+
+Ti ringraziamo per il tuo recente ordine.
+
+Hai ordinato i seguenti articoli:
+
+<%= render @order.line_items -%>
+
+Ti invieremo un'email non appena il tuo ordine sarà spedito.
