@@ -1,0 +1,8 @@
+it:
+  layouts:
+    application:
+      title:      "Libreria Pragmatic"
+      home:       "Home"
+      questions:  "Domande"
+      news:       "Notizie"
+      contact:    "Contatti"
