@@ -40,6 +40,4 @@ gem 'bcrypt', '~> 3.1.7'
 gem 'tzinfo-data', platforms: [:mingw, :mswin]
 
 # mysql per l'ambiente di produzione
-group :production do
-  gem 'mysql2'
-end
+gem 'mysql2'
