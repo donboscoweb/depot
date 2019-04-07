@@ -1,0 +1,105 @@
+sudo apt-get update
+# sudo apt-get install git
+
+
+https://gorails.com/setup/ubuntu/18.04
+
+
+dependencies:
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+
+sudo apt-get update
+sudo apt-get install git-core curl zlib1g-dev build-essential libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt1-dev libcurl4-openssl-dev software-properties-common libffi-dev nodejs yarn
+
+installazione di Ruby con rbenv:
+cd
+git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
+echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+exec $SHELL
+
+git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+echo 'export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> ~/.bashrc
+exec $SHELL
+
+rbenv install 2.1.5
+rbenv install 2.6.1
+rbenv global 2.6.1
+ruby -v
+
+
+
+# ricominciamo: RVM package for Ubuntu ubuntu/xenial64 (col 18.04 problemi, forse perché mancano ancora le guest utils...ca)
+sudo apt-get upgrade
+gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
+curl -sSL https://get.rvm.io | bash -s $1
+source /home/vagrant/.rvm/scripts/rvm
+exit
+
+               {
+                sudo apt-get install software-properties-common
+                sudo apt-add-repository -y ppa:rael-gc/rvm
+                sudo apt-get update
+                sudo apt-get install rvm
+                sudo usermod -a -G rvm vagrant
+                source /etc/profile.d/rvm.sh
+                sudo reboot
+                }
+
+# installazione di ruby:
+rvm -v
+rvm list known
+echo rvm_autoupdate_flag=2 >> ~/.rvmrc
+rvm install ruby # ultima versione
+rvm install 2.1.5 # occhio che nel 18.04 compila perché i binaries non sono disponibili, e ci mette un sacco
+
+# per usare una versione
+rvm use 2.6.2
+rvm use 2.6.2 --default
+rvm use 2.6.2 --default --install
+
+# il file .ruby-version contenuto nella cartella del progetto istruisce rvm sulla versione da usare:
+# attenzione: con la 2.6.2 problemi poi a usare bundler nei vecchi progetti
+cd /vagrant
+ruby -v
+
+# installiamo i prerequisiti:
+sqlite3 --version
+sudo apt-get install -y nodejs nodejs-legacy npm
+sudo apt-get install libmysqlclient-dev
+sudo apt-get install imagemagick # non lo avevo fatto nella versione 1.0.0 del box
+
+# installiamo rails
+gem install bundler --no-ri --no-rdoc
+gem install rails --no-ri --no-rdoc # attenzione: se lo avevamo installato prima con un'altra versione di ruby, resta installato lì: al cambio di versione va reinstallato, e così le altre gem
+rails -v # dà errore se prima non si fa bundle install
+
+# installiamo le gem richieste dal progetto
+bundle install
+rails -v
+
+# prepariamo il database
+bundle exec rake db:create db:migrate db:seed
+
+# avviamo il server di sviluppo in modo che sia raggiungibile anche dalla macchina host
+rails s -b 0.0.0.0
+
+# raggiungibile da http://localhost:3000
+
+# prepariamo il package
+vagrant package
+
+# lo rendiamo disponibile (va eseguito dalla stessa cartella dove è presente il .box)
+vagrant box add package.box --name rails_box
+
+# ora nel nuovo progetto:
+vagrant init rails_box
+vagrant up
+
+# per donboscowebseeds
+bundle install
+bundle exec rake db:setup
+bundle exec rake db:fixtures:load
+rails s -b 0.0.0.0
